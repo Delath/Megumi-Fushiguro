@@ -15,17 +15,19 @@ const (
 )
 
 var (
+    configuration Config
     telegramBotToken string
     configFilePath string
     whitelistMap map[int]User
     pollingRate time.Duration
-    adminId int
 )
 
 //********//
 // CONFIG //
 //********//
 type Config struct {
+    adminId int
+
     // TODO: Define the config file structure
 }
 
@@ -137,10 +139,14 @@ func processUpdate(update Update) {
         chatId =  update.Message.Chat.Id
     }
 
-    //TODO: Handle unauthenticated user
+    _, isAuthorizedUser := whitelistMap[chatId]
+    if !isAuthorizedUser {
+        fmt.Printf("Unauthorized telegram id %d tried to acccess the bot\n", chatId)
+        return
+    }
 
     if update.CallbackQuery.Data != "" {
-        handleCallbackQuery(chatId)
+        handleCallbackQuery(update.CallbackQuery.Data, chatId)
         return
     }
 
@@ -151,7 +157,7 @@ func processUpdate(update Update) {
 
 func loadConfigFile() {
     //file, _ := os.ReadFile(configFilePath)
-    //TODO: Handle config file parsing
+    //TODO: Handle config file parsing knowing it will be a pretty json
     loadWhitelist()
 }
 
@@ -171,6 +177,26 @@ func sendMessage(chatID int, text string) error {
     return nil
 }
 
-func handleCallbackQuery(chatId int) {
-    //TODO: Handle chosen locale by button pressed
+func handleCallbackQuery(locale string, chatId int) {
+    switch locale {
+        case "it":
+            updateLocale("it", chatId)
+        default:
+            updateLocale("en", chatId)
+    }
+}
+
+func updateLocale(locale string, chatId int) {
+    //TODO: update config file
+    
+    writeToConfigFile()
+}
+
+func writeToConfigFile() error {
+    updatedJSON, err := json.MarshalIndent(configuration, "", "    ") // TODO: Check that this makes pretty JSONs
+    if err != nil {
+        return err
+    }
+
+    return os.WriteFile(configFilePath, updatedJSON, 0644)
 }
