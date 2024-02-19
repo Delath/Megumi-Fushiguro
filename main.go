@@ -15,10 +15,9 @@ const (
 )
 
 var (
-    configuration Config
     telegramBotToken string
     configFilePath string
-    whitelistMap map[int]User
+    configuration Config
     pollingRate time.Duration
 )
 
@@ -26,35 +25,40 @@ var (
 // CONFIG //
 //********//
 type Config struct {
-    adminId int
-
-    // TODO: Define the config file structure
+    AdminId int                            `json:"adminTelegramId"`
+    Whitelist map[int]User                 `json:"whitelist"` //TODO: Understand if "0" will be actually deserialized instead of 0
+    Localization map[int]map[string]Status `json:"localization"`
+    Hub map[string]Service                 `json:"hub"`
 }
 
-//***********//
-// WHITELIST //
-//***********//
 type User struct {
-	Username string
-    Locale string
+	Username string `json:"username"`
+    Locale string   `json:"locale"`
+}
+
+type Status struct {
+    Text string `json:"text"`
+}
+
+type Service struct {
+    Path string `json:"path"`
 }
 
 //**********//
-// TELEGRAM // // TODO: Redefine all the structs from https://core.telegram.org/bots/api
+// TELEGRAM //
 //**********//
 type Update struct {
     UpdateID int                `json:"update_id"`
-    Message  TelegramMessage    `json:"message"`
+    Message  Message            `json:"message"`
     CallbackQuery CallbackQuery `json:"callback_query,omitempty"`
 }
 
 type CallbackQuery struct {
-    ID      string          `json:"id"`
-    Data    string          `json:"data"`
-    Message TelegramMessage `json:"message"`
+    Data    string  `json:"data"`
+    Message Message `json:"message"`
 }
 
-type TelegramMessage struct {
+type Message struct {
 	MessageId int    `json:"message_id"`
 	Chat      Chat   `json:"chat"`
 	Text      string `json:"text"`
@@ -82,7 +86,7 @@ func main() {
         os.Exit(1)
     }
 
-    //whitelistMap = loadConfigFile()
+    loadConfigFile()
 
     offset := 0
     pollingRate = 5 * time.Second
@@ -139,7 +143,7 @@ func processUpdate(update Update) {
         chatId =  update.Message.Chat.Id
     }
 
-    _, isAuthorizedUser := whitelistMap[chatId]
+    _, isAuthorizedUser := configuration.Whitelist[chatId]
     if !isAuthorizedUser {
         fmt.Printf("Unauthorized telegram id %d tried to acccess the bot\n", chatId)
         return
@@ -150,20 +154,18 @@ func processUpdate(update Update) {
         return
     }
 
-    //input := update.Message.Text
+    handleInput(update.Message.Text)
+}
 
+func handleInput(input string) {
     //TODO: Handle input
+
 }
 
 func loadConfigFile() {
-    //file, _ := os.ReadFile(configFilePath)
-    //TODO: Handle config file parsing knowing it will be a pretty json
-    loadWhitelist()
-}
+    file, _ := os.ReadFile(configFilePath)
 
-func loadWhitelist() {
-    //TODO: Handle whitelist loading
-    //whitelistMap =
+    json.Unmarshal(file, &configuration)
 }
 
 func sendMessage(chatID int, text string) error {
@@ -187,13 +189,16 @@ func handleCallbackQuery(locale string, chatId int) {
 }
 
 func updateLocale(locale string, chatId int) {
-    //TODO: update config file
-    
+    if userEntry, ok := configuration.Whitelist[chatId]; ok {
+        userEntry.Locale = locale
+        configuration.Whitelist[chatId] = userEntry
+    }
+
     writeToConfigFile()
 }
 
 func writeToConfigFile() error {
-    updatedJSON, err := json.MarshalIndent(configuration, "", "    ") // TODO: Check that this makes pretty JSONs
+    updatedJSON, err := json.MarshalIndent(configuration, "", "    ")
     if err != nil {
         return err
     }

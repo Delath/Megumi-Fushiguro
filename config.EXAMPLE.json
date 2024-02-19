@@ -1,10 +1,32 @@
 {
-    "whitelist": [
-        {
-            "telegramId": "",
-            "username": "",
-            "locale": ""
+    "adminTelegramId": 0,
+    "whitelist": {
+        "0": {
+            "username": "John",
+            "locale": "en"
         }
-    ],
-    "adminTelegramId":""
+    },
+    "localization": {
+        "en": {
+            "success": {
+                "text": "200"
+            },
+            "failure": {
+                "text": "400"
+            }
+        },
+        "it": {
+            "success": {
+                "text": "200"
+            },
+            "failure": {
+                "text": "400"
+            }
+        }
+    },
+    "hub": {
+        "minecraft": {
+            "path": "/"
+        }
+    }
 }
