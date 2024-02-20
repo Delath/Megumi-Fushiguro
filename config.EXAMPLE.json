@@ -26,7 +26,8 @@
     },
     "hub": {
         "minecraft": {
-            "path": "/"
+            "path": "/",
+            "scriptName": "minecraft.sh"
         }
     }
 }

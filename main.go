@@ -42,6 +42,7 @@ type Status struct {
 
 type Service struct {
     Path string `json:"path"`
+    ScriptName string `json:"scriptName"`
 }
 
 //**********//
