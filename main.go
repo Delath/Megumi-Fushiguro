@@ -6,7 +6,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -18,7 +20,8 @@ var (
     telegramBotToken string
     configFilePath string
     configuration Config
-    pollingRate time.Duration
+    pollingRate time.Duration // TODO: Define conditions for this to be changed
+
 )
 
 //********//
@@ -43,6 +46,7 @@ type Status struct {
 type Service struct {
     Path string `json:"path"`
     ScriptName string `json:"scriptName"`
+    User string `json:"user"`
 }
 
 //**********//
@@ -155,12 +159,55 @@ func processUpdate(update Update) {
         return
     }
 
-    handleInput(update.Message.Text)
+    handleInput(update.Message.Text, chatId)
 }
 
-func handleInput(input string) {
-    //TODO: Handle input
+func handleInput(input string, chatId int) {
+    if strings.HasPrefix(input, "/") {
+		handleCommand(strings.ToLower(input[1:]), chatId)
+	} else {
+        // TODO: Handle text not starting with "/"
+    }
+}
 
+func handleCommand(input string, chatId int) {
+    switch input {
+        case "start":
+            // TODO: Handle /start command
+            return
+        case "list":
+            // TODO: Handle /list command and remember to write that if the bot got rebooted in the day, it could be inconsistent
+            return
+        case "help":
+            // TODO: Handle /help command
+            return
+        default:
+            handleService(input, chatId)
+            return
+    }
+}
+
+func handleService(input string, chatId int) {
+    service, supported := configuration.Hub[input]
+    if !supported {
+        // TODO: Handle not supported command and write about the /help command
+    } else {
+        err := startService(service)
+        if err != nil {
+            // TODO: Handle error response
+            return
+        }
+        // TODO: Handle success response
+    }
+}
+
+func startService(service Service) error {
+    cmd := exec.Command("sudo", "-u", service.User, service.Path + service.ScriptName) //TODO: Understand if this works without the bot running as sudo and the implications of that
+    err := cmd.Run()
+    if err != nil {
+        return err
+    }
+    return nil
 }
 
 func loadConfigFile() {

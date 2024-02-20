@@ -27,7 +27,8 @@
     "hub": {
         "minecraft": {
             "path": "/",
-            "scriptName": "minecraft.sh"
+            "scriptName": "minecraft.sh",
+            "user": "docker"
         }
     }
 }
