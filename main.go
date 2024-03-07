@@ -173,13 +173,19 @@ func handleInput(input string, chatId int) {
 func handleCommand(input string, chatId int) {
     switch input {
         case "start":
-            // TODO: Handle /start command
+            err := sendLanguageSelectionButtons(chatId, "ㅤㅤ( ﾉ ﾟｰﾟ)ﾉ")
+            if err != nil {
+                fmt.Println("Error sending message: ", err)
+            }
             return
         case "list":
             // TODO: Handle /list command and remember to write that if the bot got rebooted in the day, it could be inconsistent
             return
         case "help":
             // TODO: Handle /help command
+            return
+        case "stop":
+            // TODO: Handle /stop command but only if the chatId corresponds to the admin chatId
             return
         default:
             handleService(input, chatId)
@@ -252,4 +258,40 @@ func writeToConfigFile() error {
     }
 
     return os.WriteFile(configFilePath, updatedJSON, 0644)
+}
+
+func sendLanguageSelectionButtons(chatID int, text string) error {
+	keyboard := struct {
+		InlineKeyboard [][]struct {
+			Text         string `json:"text"`
+			CallbackData string `json:"callback_data"`
+		} `json:"inline_keyboard"`
+	}{
+		InlineKeyboard: [][]struct {
+			Text         string `json:"text"`
+			CallbackData string `json:"callback_data"`
+		}{
+			{
+				{Text: "🇮🇹", CallbackData: "it"},
+				{Text: "🇬🇧", CallbackData: "en"},
+			},
+		},
+	}
+
+	keyboardJSON, err := json.Marshal(keyboard)
+	if err != nil {
+		return err
+	}
+
+	formData := fmt.Sprintf("chat_id=%d&text=%s&reply_markup=%s", chatID, text, keyboardJSON)
+	contentType := "application/x-www-form-urlencoded"
+
+	url := fmt.Sprintf("%s%s/sendMessage", telegramAPIURL, telegramBotToken)
+	resp, err := http.Post(url, contentType, strings.NewReader(formData))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	return nil
 }
