@@ -12,7 +12,16 @@
                 "text": "200"
             },
             "failure": {
+                "text": "500"
+            },
+            "unauthorized": {
+                "text": "401"
+            },
+            "malformed": {
                 "text": "400"
+            },
+            "unimplemented": {
+                "text": "501"
             }
         },
         "it": {
@@ -20,13 +29,22 @@
                 "text": "200"
             },
             "failure": {
+                "text": "500"
+            },
+            "unauthorized": {
+                "text": "401"
+            },
+            "malformed": {
                 "text": "400"
+            },
+            "unimplemented": {
+                "text": "501"
             }
         }
     },
     "hub": {
         "minecraft": {
-            "path": "/",
+            "path": "/"
         }
     }
 }

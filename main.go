@@ -30,7 +30,7 @@ var (
 type Config struct {
 	AdminId      int                       `json:"adminTelegramId"`
 	Whitelist    map[int]User              `json:"whitelist"` //TODO: Understand if "0" will be actually deserialized instead of 0
-	Localization map[int]map[string]Status `json:"localization"`
+	Localization map[string]map[string]Status `json:"localization"`
 	Hub          map[string]Service        `json:"hub"`
 }
 
@@ -166,7 +166,7 @@ func handleInput(input string, chatId int) {
 	if strings.HasPrefix(input, "/") {
 		handleCommand(strings.ToLower(input[1:]), chatId)
 	} else {
-		// TODO: Handle text not starting with "/" maybe by saying that the bot doesn't want to chat
+        sendMessage(chatId, configuration.Localization[configuration.Whitelist[chatId].Locale]["malformed"].Text)
 	}
 }
 
@@ -184,15 +184,16 @@ func handleCommand(input string, chatId int) {
 	case "help":
 		// TODO: Handle /help command
 		return
-	case "stop":
-		if chatId == configuration.AdminId {
-            handleService(input, chatId, "stop.sh")
-		} else {
-		// TODO: Handle unauthorized user
-		}
-		return
 	default:
-		handleService(input, chatId, "start.sh")
+        if strings.HasPrefix(input, "stop") {
+            if chatId == configuration.AdminId {
+                handleService(input[5:], chatId, "stop.sh")
+            } else {
+                sendMessage(chatId, configuration.Localization[configuration.Whitelist[chatId].Locale]["unauthorized"].Text)
+            }    
+        } else {
+            handleService(input, chatId, "start.sh")
+        }
 		return
 	}
 }
@@ -200,14 +201,14 @@ func handleCommand(input string, chatId int) {
 func handleService(input string, chatId int, command string) {
 	service, supported := configuration.Hub[input]
 	if !supported {
-		// TODO: Handle not supported command and write about the /help command
+        sendMessage(chatId, configuration.Localization[configuration.Whitelist[chatId].Locale]["unimplemented"].Text)
 	} else {
 		err := commandService(service, command)
 		if err != nil {
-			// TODO: Handle error response
+            sendMessage(chatId, configuration.Localization[configuration.Whitelist[chatId].Locale]["failure"].Text)
 			return
 		}
-		// TODO: Handle success response
+        sendMessage(chatId, configuration.Localization[configuration.Whitelist[chatId].Locale]["success"].Text)
 	}
 }
 
@@ -222,15 +223,16 @@ func loadConfigFile() {
 	json.Unmarshal(file, &configuration)
 }
 
-func sendMessage(chatID int, text string) error {
+func sendMessage(chatID int, text string) {
+    text = strings.ReplaceAll(text, "%s", configuration.Whitelist[chatID].Username)
+    
 	url := fmt.Sprintf("%s%s/sendMessage?chat_id=%d&text=%s", telegramAPIURL, telegramBotToken, chatID, text)
 	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	return nil
+    if err != nil {
+        fmt.Println("Error sending message: ", err)
+    } else {
+        defer resp.Body.Close()
+    }
 }
 
 func handleCallbackQuery(locale string, chatId int) {
