@@ -20,16 +20,17 @@ var (
 	telegramBotToken string
 	configFilePath   string
 	configuration    Config
-	pollingRate      time.Duration // TODO: Define conditions for this to be changed
+	services         string
+	pollingRate      time.Duration
 
 )
 
 // ********//
-// CONFIG //
+// CONFIG  //
 // ********//
 type Config struct {
 	AdminId      int                          `json:"adminTelegramId"`
-	Whitelist    map[int]User                 `json:"whitelist"` //TODO: Understand if "0" will be actually deserialized instead of 0
+	Whitelist    map[int]User                 `json:"whitelist"`
 	Localization map[string]map[string]Status `json:"localization"`
 	Hub          map[string]Service           `json:"hub"`
 }
@@ -48,7 +49,7 @@ type Service struct {
 }
 
 // **********//
-// TELEGRAM //
+// TELEGRAM  //
 // **********//
 type Update struct {
 	UpdateID      int           `json:"update_id"`
@@ -177,7 +178,7 @@ func handleCommand(input string, chatId int) {
 		}
 		return
 	case "help":
-		sendMessage(chatId, configuration.Localization[configuration.Whitelist[chatId].Locale]["help"].Text)
+		sendMessage(chatId, services)
 		return
 	default:
         if strings.HasPrefix(input, "stop") {
@@ -216,6 +217,17 @@ func loadConfigFile() {
 	file, _ := os.ReadFile(configFilePath)
 
 	json.Unmarshal(file, &configuration)
+
+
+	servicesArray := make([]string, len(configuration.Hub))
+
+	i := 0
+	for s := range configuration.Hub {
+		servicesArray[i] = s
+		i++
+	}
+
+	services = "/" + strings.Join(servicesArray, " /")
 }
 
 func sendMessage(chatID int, text string) {

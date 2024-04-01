@@ -22,9 +22,6 @@
             },
             "unimplemented": {
                 "text": "501"
-            },
-            "help": {
-                "text": "help"
             }
         },
         "it": {
@@ -42,9 +39,6 @@
             },
             "unimplemented": {
                 "text": "501"
-            },
-            "help": {
-                "text": "help"
             }
         }
     },
