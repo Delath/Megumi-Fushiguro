@@ -28,10 +28,10 @@ var (
 // CONFIG //
 // ********//
 type Config struct {
-	AdminId      int                       `json:"adminTelegramId"`
-	Whitelist    map[int]User              `json:"whitelist"` //TODO: Understand if "0" will be actually deserialized instead of 0
+	AdminId      int                          `json:"adminTelegramId"`
+	Whitelist    map[int]User                 `json:"whitelist"` //TODO: Understand if "0" will be actually deserialized instead of 0
 	Localization map[string]map[string]Status `json:"localization"`
-	Hub          map[string]Service        `json:"hub"`
+	Hub          map[string]Service           `json:"hub"`
 }
 
 type User struct {
@@ -75,9 +75,7 @@ type Chat struct {
 }
 
 // ********//
-//
-//	main  //
-//
+//	main   //
 // ********//
 func main() {
 	telegramBotToken = os.Getenv("TELEGRAM_BOT_TOKEN")
@@ -178,11 +176,8 @@ func handleCommand(input string, chatId int) {
 			fmt.Println("Error sending message: ", err)
 		}
 		return
-	case "list":
-		// TODO: Handle /list command and remember to write that if the bot got rebooted in the day, it could be inconsistent
-		return
 	case "help":
-		// TODO: Handle /help command
+		sendMessage(chatId, configuration.Localization[configuration.Whitelist[chatId].Locale]["help"].Text)
 		return
 	default:
         if strings.HasPrefix(input, "stop") {
