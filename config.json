@@ -22,6 +22,9 @@
             },
             "unimplemented": {
                 "text": "501"
+            },
+            "welcome": {
+                "text": "0"
             }
         },
         "it": {
@@ -39,6 +42,9 @@
             },
             "unimplemented": {
                 "text": "501"
+            },
+            "welcome": {
+                "text": "0"
             }
         }
     },

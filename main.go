@@ -183,7 +183,11 @@ func handleCommand(input string, chatId int) {
 	default:
         if strings.HasPrefix(input, "stop") {
             if chatId == configuration.AdminId {
-                handleService(input[5:], chatId, "stop.sh")
+				if len(input) >= 6 && input[5] != ' ' {
+					handleService(input[5:], chatId, "stop.sh")
+				} else {
+					sendMessage(chatId, configuration.Localization[configuration.Whitelist[chatId].Locale]["malformed"].Text)
+				}
             } else {
                 sendMessage(chatId, configuration.Localization[configuration.Whitelist[chatId].Locale]["unauthorized"].Text)
             }    
@@ -258,6 +262,8 @@ func updateLocale(locale string, chatId int) {
 	}
 
 	writeToConfigFile()
+
+	sendMessage(chatId, configuration.Localization[locale]["welcome"].Text)
 }
 
 func writeToConfigFile() error {

@@ -5,3 +5,8 @@ $Env:TELEGRAM_BOT_TOKEN = "0000000000:ABCDEFGHIJKLMNOPQRSTUVWXYZABEXAMPLE"
 $Env:CONFIG_FILE_PATH = "/path/to/config.json"
 go build main.go
 ```
+
+# Running the bot on linux
+```bash
+env TELEGRAM_BOT_TOKEN=0000000000:ABCDEFGHIJKLMNOPQRSTUVWXYZABEXAMPLE CONFIG_FILE_PATH=/path/to/config.json /path/to/your/executable
+```
