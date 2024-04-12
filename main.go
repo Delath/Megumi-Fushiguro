@@ -99,7 +99,7 @@ func main() {
 		updates, err := getUpdates(offset)
 		if err != nil {
 			fmt.Println("Error getting updates:", err)
-			time.Sleep(5 * time.Second)
+			time.Sleep(pollingRate)
 			continue
 		}
 
