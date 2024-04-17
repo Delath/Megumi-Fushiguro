@@ -75,9 +75,9 @@ type Chat struct {
 	Lastname  *string `json:"last_name,omitempty"`
 }
 
-// ********//
-//	main   //
-// ********//
+//********//
+//  main  //
+//********//
 func main() {
 	telegramBotToken = os.Getenv("TELEGRAM_BOT_TOKEN")
 	if telegramBotToken == "" {
