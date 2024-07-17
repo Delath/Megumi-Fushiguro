@@ -25,9 +25,9 @@ var (
 
 )
 
-// ********//
-// CONFIG  //
-// ********//
+//**********//
+//  CONFIG  //
+//**********//
 type Config struct {
 	AdminId      int                          `json:"adminTelegramId"`
 	Whitelist    map[int]User                 `json:"whitelist"`
@@ -48,9 +48,9 @@ type Service struct {
 	Path string `json:"path"`
 }
 
-// **********//
-// TELEGRAM  //
-// **********//
+//************//
+//  TELEGRAM  //
+//************//
 type Update struct {
 	UpdateID      int           `json:"update_id"`
 	Message       Message       `json:"message"`
