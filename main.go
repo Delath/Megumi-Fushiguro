@@ -149,7 +149,7 @@ func processUpdate(update Update) {
 
 	_, isAuthorizedUser := configuration.Whitelist[chatId]
 	if !isAuthorizedUser {
-		fmt.Printf("Unauthorized telegram id %d tried to acccess the bot\n", chatId)
+		fmt.Printf("Unauthorized telegram id %d tried to access the bot\n", chatId)
 		return
 	}
 
